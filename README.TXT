@@ -1,12 +1,11 @@
 ------------------------------------------------------------------------
-This is the project README file. Here, you should describe your project.
-Tell the reader (someone who does not know anything about this project)
-all he/she needs to know. The comments should usually include at least:
+A map problem using Dijkstra's algorithm. I used ajacency matrix 
+representation for the hand coded data. 
 ------------------------------------------------------------------------
 
-PROJECT TITLE:
-PURPOSE OF PROJECT:
-VERSION or DATE:
-HOW TO START THIS PROJECT:
-AUTHORS:
-USER INSTRUCTIONS:
+PROJECT TITLE: UG TransportationProblem
+PURPOSE OF PROJECT: School 
+VERSION or DATE: .0
+HOW TO START THIS PROJECT: learn dijktra's algorithm 
+AUTHORS: Mawuli Badassou 
+USER INSTRUCTIONS: Run file in Bluej or .java file in any java ide 
