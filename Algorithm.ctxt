@@ -1,0 +1,19 @@
+#BlueJ class context
+comment0.target=Algorithm
+comment1.params=adjacencyMatrix\ startVertex\ endVertex
+comment1.target=void\ shortDistance(int[][],\ int,\ int)
+comment2.params=startVertex\ distances\ parents\ endVertex
+comment2.target=void\ printSolution(int,\ int[],\ int[],\ int)
+comment3.params=index
+comment3.target=java.lang.String\ place(int)
+comment4.params=
+comment4.target=void\ printLocation()
+comment5.params=currentVertex\ parents
+comment5.target=void\ printPath(int,\ int[])
+comment6.params=adjacencyMatrix
+comment6.target=void\ inputs(int[][])
+comment7.params=number
+comment7.target=boolean\ check(int)
+comment8.params=args
+comment8.target=void\ main(java.lang.String[])
+numComments=9
