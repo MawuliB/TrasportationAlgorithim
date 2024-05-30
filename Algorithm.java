@@ -2,6 +2,9 @@ import java.net.ConnectException;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 // A Java program for Dijkstra's
 // single source shortest path
@@ -9,7 +12,7 @@ import javax.swing.*;
 // adjacency matrix representation
 // of the graph.
 
-class Algorithm {
+class Main {
     static Scanner input = new Scanner(System.in);
     private static final int NO_PARENT = -1;
 
@@ -108,6 +111,78 @@ class Algorithm {
 
             }
         }
+    }
+
+    private static String shortDistanceUi(int[][] adjacencyMatrix, int startVertex, int endVertex) {
+        int nVertices = adjacencyMatrix[0].length;
+    
+        int[] shortestDistances = new int[nVertices];
+        boolean[] added = new boolean[nVertices];
+    
+        for (int vertexIndex = 0; vertexIndex < nVertices; vertexIndex++) {
+            shortestDistances[vertexIndex] = Integer.MAX_VALUE;
+            added[vertexIndex] = false;
+        }
+    
+        shortestDistances[startVertex] = 0;
+        int[] parents = new int[nVertices];
+        parents[startVertex] = NO_PARENT;
+    
+        for (int i = 1; i < nVertices; i++) {
+            int nearestVertex = -1;
+            int shortestDistance = Integer.MAX_VALUE;
+            for (int vertexIndex = 0; vertexIndex < nVertices; vertexIndex++) {
+                if (!added[vertexIndex] && shortestDistances[vertexIndex] < shortestDistance) {
+                    nearestVertex = vertexIndex;
+                    shortestDistance = shortestDistances[vertexIndex];
+                }
+            }
+    
+            added[nearestVertex] = true;
+    
+            for (int vertexIndex = 0; vertexIndex < nVertices; vertexIndex++) {
+                int edgeDistance = adjacencyMatrix[nearestVertex][vertexIndex];
+    
+                if (edgeDistance > 0 && ((shortestDistance + edgeDistance) < shortestDistances[vertexIndex])) {
+                    parents[vertexIndex] = nearestVertex;
+                    shortestDistances[vertexIndex] = shortestDistance + edgeDistance;
+                }
+            }
+        }
+    
+        return printSolutionUi(startVertex, shortestDistances, parents, endVertex);
+    }
+    
+    private static String printPathUi(int currentVertex, int[] parents) {
+        // Base case : Source node has been processed
+        if (currentVertex == NO_PARENT) {
+            return "";
+        }
+        String path = printPathUi(parents[currentVertex], parents);
+        path += place(currentVertex) + "---->";
+        return path;
+    }
+    
+    private static String printSolutionUi(int startVertex, int[] distances, int[] parents, int endVertex) {
+        int nVertices = distances.length;
+        StringBuilder journey = new StringBuilder("\n\nJourney");
+    
+        for (int vertexIndex = 0; vertexIndex < nVertices; vertexIndex++) {
+            if (vertexIndex != startVertex && vertexIndex == endVertex) {
+                double convert = distances[vertexIndex];
+                journey.append("\n").append(place(startVertex)).append(" -> ");
+                journey.append(place(vertexIndex));
+                journey.append("\n\nTotal Distance\n").append(convert / 1000).append(" km");
+                journey.append("\n\nPath\n");
+                String path = printPathUi(vertexIndex, parents);
+                if (path.endsWith("---->")) {
+                    path = path.substring(0, path.length() - 5); // remove last arrow
+                }
+                journey.append(path);
+            }
+        }
+    
+        return journey.toString();
     }
 
     // Assign Locations
@@ -272,45 +347,69 @@ class Algorithm {
         }
     }
 
+    private static JFrame frame;
+    private static JPanel panel;
+    private static JButton button;
+    private static JComboBox<String> startLocationDropdown;
+    private static JComboBox<String> endLocationDropdown;
+    private static JTextArea shortestPathTextArea;
+    private static JLabel startLabel;
+    private static JLabel endLabel;
+
+    private static final String[] locations = {
+        "School Gate", "School of Info. Studies", "JQB", "Int. Programme Office", "Pent", 
+        "Comp. Sci. Dept.", "Sch. of Law", "Math Dept.", "UGCS", "Volta Hall", 
+        "Commonwealth Hall", "Viannis Bistro", "Sch of Economics", "Balme Library", "KAB", 
+        "Akuafo Hall", "Atlethic Oval", "Sarbah Hall", "Sarbah Annex", "Dept Of Music", 
+        "CEGENSA", "Bush Canteen", "Leg Barbeque Joint", "Legon Hall", "Fire Service", 
+        "Dept. Of Earth Science", "Chemistry Dept.", "Central Cafeteria"
+    };
+
+    private static int[][] adjacencyMatrix = {
+        { 0, 150, 0, 0, 900, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0, 0, 0, 250, 0, 400, 0, 0, 230, 0, 0, 0 },
+        { 150, 0, 140, 350, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 600, 0, 0, 0, 400, 0, 0, 0, 0, 350, 400, 0, 0 },
+        { 0, 140, 0, 200, 0, 0, 350, 450, 0, 0, 0, 0, 0, 0, 99, 700, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0, 0 },
+        { 0, 350, 200, 0, 500, 0, 240, 0, 0, 0, 0, 0, 0, 0, 96, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0, 0 },
+        { 900, 0, 0, 500, 0, 500, 650, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 500, 0, 500, 160, 750, 0, 0, 0, 0, 750, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 350, 0 },
+        { 0, 0, 350, 240, 650, 500, 0, 400, 0, 0, 0, 0, 0, 900, 350, 750, 0, 0, 0, 0, 0, 0, 0, 0, 0, 600, 500,
+                0 },
+        { 0, 0, 450, 0, 0, 160, 400, 0, 350, 0, 0, 0, 0, 600, 350, 500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 190,
+                0 },
+        { 0, 0, 0, 0, 0, 750, 0, 350, 0, 350, 0, 0, 71, 200, 0, 0, 0, 0, 0, 0, 0, 0, 290, 0, 0, 0, 350, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 350, 0, 450, 250, 280, 0, 0, 0, 0, 0, 0, 0, 0, 0, 94, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 450, 0, 210, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 450, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 250, 210, 0, 0, 550, 0, 550, 0, 0, 0, 0, 0, 0, 250, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 71, 280, 0, 0, 0, 130, 0, 0, 0, 0, 0, 0, 0, 0, 220, 0, 0, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 750, 900, 600, 200, 0, 0, 550, 130, 0, 750, 270, 0, 0, 0, 0, 0, 0, 300, 350, 0, 450,
+                400, 0 },
+        { 0, 0, 99, 96, 0, 0, 350, 350, 0, 0, 0, 0, 0, 750, 0, 600, 0, 0, 0, 0, 0, 0, 1000, 0, 0, 450, 350,
+                1100 },
+        { 500, 600, 700, 700, 0, 0, 750, 500, 0, 0, 0, 550, 0, 270, 600, 0, 500, 750, 0, 750, 650, 0, 350, 300,
+                650, 190, 450, 700 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0, 300, 0, 0, 0, 0, 450, 220, 0, 0, 0, 200 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 750, 300, 0, 350, 0, 700, 0, 750, 600, 0, 0, 0, 290 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 350, 0, 0, 800, 0, 0, 0, 0, 0, 0, 400 },
+        { 250, 400, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 750, 0, 0, 0, 0, 700, 650, 0, 0, 450, 0, 0, 1300 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 650, 0, 700, 800, 700, 0, 550, 0, 0, 0, 0, 0, 600 },
+        { 400, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 650, 550, 0, 0, 0, 170, 0, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 290, 94, 450, 250, 220, 300, 1000, 350, 450, 750, 0, 0, 0, 0, 0, 43, 0, 0, 0,
+                650 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 350, 0, 300, 220, 600, 0, 0, 0, 0, 43, 0, 0, 0, 0, 0 },
+        { 230, 350, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 650, 0, 0, 0, 450, 0, 170, 0, 0, 0, 0, 0, 0 },
+        { 0, 400, 500, 500, 0, 0, 600, 500, 0, 0, 0, 0, 0, 450, 450, 190, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 450,
+                0 },
+        { 0, 0, 0, 0, 0, 250, 500, 190, 350, 0, 0, 0, 0, 400, 350, 450, 0, 0, 0, 0, 0, 0, 0, 0, 0, 450, 0, 0 },
+        { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1100, 700, 200, 290, 400, 1300, 600, 0, 650, 0, 0, 0, 0,
+                0 }, };
+
 
     public static void main(String[] args) {
-        int[][] adjacencyMatrix = {
-                { 0, 150, 0, 0, 900, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0, 0, 0, 250, 0, 400, 0, 0, 230, 0, 0, 0 },
-                { 150, 0, 140, 350, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 600, 0, 0, 0, 400, 0, 0, 0, 0, 350, 400, 0, 0 },
-                { 0, 140, 0, 200, 0, 0, 350, 450, 0, 0, 0, 0, 0, 0, 99, 700, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0, 0 },
-                { 0, 350, 200, 0, 500, 0, 240, 0, 0, 0, 0, 0, 0, 0, 96, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0, 0 },
-                { 900, 0, 0, 500, 0, 500, 650, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-                { 0, 0, 0, 0, 500, 0, 500, 160, 750, 0, 0, 0, 0, 750, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 350, 0 },
-                { 0, 0, 350, 240, 650, 500, 0, 400, 0, 0, 0, 0, 0, 900, 350, 750, 0, 0, 0, 0, 0, 0, 0, 0, 0, 600, 500,
-                        0 },
-                { 0, 0, 450, 0, 0, 160, 400, 0, 350, 0, 0, 0, 0, 600, 350, 500, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 190,
-                        0 },
-                { 0, 0, 0, 0, 0, 750, 0, 350, 0, 350, 0, 0, 71, 200, 0, 0, 0, 0, 0, 0, 0, 0, 290, 0, 0, 0, 350, 0 },
-                { 0, 0, 0, 0, 0, 0, 0, 0, 350, 0, 450, 250, 280, 0, 0, 0, 0, 0, 0, 0, 0, 0, 94, 0, 0, 0, 0, 0 },
-                { 0, 0, 0, 0, 0, 0, 0, 0, 0, 450, 0, 210, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 450, 0, 0, 0, 0, 0 },
-                { 0, 0, 0, 0, 0, 0, 0, 0, 0, 250, 210, 0, 0, 550, 0, 550, 0, 0, 0, 0, 0, 0, 250, 0, 0, 0, 0, 0 },
-                { 0, 0, 0, 0, 0, 0, 0, 0, 71, 280, 0, 0, 0, 130, 0, 0, 0, 0, 0, 0, 0, 0, 220, 0, 0, 0, 0, 0 },
-                { 0, 0, 0, 0, 0, 750, 900, 600, 200, 0, 0, 550, 130, 0, 750, 270, 0, 0, 0, 0, 0, 0, 300, 350, 0, 450,
-                        400, 0 },
-                { 0, 0, 99, 96, 0, 0, 350, 350, 0, 0, 0, 0, 0, 750, 0, 600, 0, 0, 0, 0, 0, 0, 1000, 0, 0, 450, 350,
-                        1100 },
-                { 500, 600, 700, 700, 0, 0, 750, 500, 0, 0, 0, 550, 0, 270, 600, 0, 500, 750, 0, 750, 650, 0, 350, 300,
-                        650, 190, 450, 700 },
-                { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 500, 0, 300, 0, 0, 0, 0, 450, 220, 0, 0, 0, 200 },
-                { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 750, 300, 0, 350, 0, 700, 0, 750, 600, 0, 0, 0, 290 },
-                { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 350, 0, 0, 800, 0, 0, 0, 0, 0, 0, 400 },
-                { 250, 400, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 750, 0, 0, 0, 0, 700, 650, 0, 0, 450, 0, 0, 1300 },
-                { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 650, 0, 700, 800, 700, 0, 550, 0, 0, 0, 0, 0, 600 },
-                { 400, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 650, 550, 0, 0, 0, 170, 0, 0, 0 },
-                { 0, 0, 0, 0, 0, 0, 0, 0, 290, 94, 450, 250, 220, 300, 1000, 350, 450, 750, 0, 0, 0, 0, 0, 43, 0, 0, 0,
-                        650 },
-                { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 350, 0, 300, 220, 600, 0, 0, 0, 0, 43, 0, 0, 0, 0, 0 },
-                { 230, 350, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 650, 0, 0, 0, 450, 0, 170, 0, 0, 0, 0, 0, 0 },
-                { 0, 400, 500, 500, 0, 0, 600, 500, 0, 0, 0, 0, 0, 450, 450, 190, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 450,
-                        0 },
-                { 0, 0, 0, 0, 0, 250, 500, 190, 350, 0, 0, 0, 0, 400, 350, 450, 0, 0, 0, 0, 0, 0, 0, 0, 0, 450, 0, 0 },
-                { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1100, 700, 200, 290, 400, 1300, 600, 0, 650, 0, 0, 0, 0,
-                        0 }, };
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                createUI();
+            }
+        });
 
         System.out.println("---------------------Welcome To UG Shortest Path Finder---------------------");
         System.out.println("\n**Please Locate Your Start Point and End Point with Thier Indexes**\n");
@@ -318,5 +417,41 @@ class Algorithm {
         printLocation();
         inputs(adjacencyMatrix);
 
+    }
+
+    private static void createUI() {
+        frame = new JFrame("Shortest Path Finder");
+        panel = new JPanel();
+        button = new JButton("Find Shortest Path");
+        startLocationDropdown = new JComboBox<>(locations);
+        endLocationDropdown = new JComboBox<>(locations);
+        shortestPathTextArea = new JTextArea(10, 40);
+        startLabel = new JLabel("Select start location:");
+        endLabel = new JLabel("Select end location:");
+
+        button.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int startLocationIndex = startLocationDropdown.getSelectedIndex();
+                int endLocationIndex = endLocationDropdown.getSelectedIndex();
+                // Call your shortest path function here with startLocationIndex and endLocationIndex
+                // For example: findShortestPath(startLocationIndex, endLocationIndex);
+                // And then set the result to the text area
+                // For example: shortestPathTextArea.setText(result);
+                shortestPathTextArea.setText(shortDistanceUi(adjacencyMatrix, startLocationIndex, endLocationIndex));
+            }
+        });
+
+        panel.setLayout(new FlowLayout());
+        panel.add(startLabel);
+        panel.add(startLocationDropdown);
+        panel.add(endLabel);
+        panel.add(endLocationDropdown);
+        panel.add(button);
+        panel.add(shortestPathTextArea);
+        frame.add(panel);
+        frame.setSize(700, 500);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
     }
 }
